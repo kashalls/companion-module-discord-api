@@ -5,3 +5,5 @@ dist/
 /pkg.tgz
 companion.log
 DEBUG-PACKAGED
+proxy/node_modules/
+proxy/dist/

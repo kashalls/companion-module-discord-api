@@ -17,13 +17,16 @@ class DiscordInstance extends InstanceBase<Config> {
 		this.instanceOptions.disableVariableValidation = true
 	}
 
-	public discord: Discord = new Discord(this)
+	public discord!: Discord
 
 	public config: Config = {
 		clientID: '',
 		clientSecret: '',
 		refreshToken: '',
 		speakerDelay: 100,
+		useRemoteEndpoint: false,
+		remoteHost: '',
+		remotePort: 8080,
 	}
 
 	public readonly variables = new Variables(this)
@@ -33,7 +36,8 @@ class DiscordInstance extends InstanceBase<Config> {
 	 */
 	public async init(config: Config): Promise<void> {
 		this.log('debug', `Process ID: ${process.pid}`)
-		await this.configUpdated(config)
+		this.config = config
+		this.discord = new Discord(this)
 		this.updateInstance()
 		this.setPresetDefinitions(getPresets())
 		this.clientInit()
@@ -46,6 +50,14 @@ class DiscordInstance extends InstanceBase<Config> {
 		if (!this.config.clientID || !this.config.clientSecret) {
 			this.log('info', 'Please configure the Discord module with a Client ID and Client Secret')
 			return
+		}
+
+		if (this.config.useRemoteEndpoint) {
+			if (!this.config.remoteHost) {
+				this.log('warn', 'Remote endpoint enabled but no remote host configured')
+				return
+			}
+			this.log('info', `Connecting to remote Discord proxy at ${this.config.remoteHost}:${this.config.remotePort}`)
 		}
 
 		this.discord.init()
@@ -78,8 +90,18 @@ class DiscordInstance extends InstanceBase<Config> {
 	 * @description triggered every time the config for this instance is saved
 	 */
 	public async configUpdated(config: Config): Promise<void> {
-		if (this.config.clientID !== config.clientID || this.config.clientSecret !== config.clientSecret) {
+		const needsReinit =
+			this.config.clientID !== config.clientID ||
+			this.config.clientSecret !== config.clientSecret ||
+			this.config.useRemoteEndpoint !== config.useRemoteEndpoint ||
+			this.config.remoteHost !== config.remoteHost ||
+			this.config.remotePort !== config.remotePort
+
+		if (needsReinit && this.discord) {
+			// Destroy old client and create new one (only if discord client exists)
+			await this.destroy()
 			this.config = config
+			this.discord = new Discord(this)
 			this.clientInit()
 		} else {
 			this.config = config
