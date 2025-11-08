@@ -17,7 +17,7 @@ class DiscordInstance extends InstanceBase<Config> {
 		this.instanceOptions.disableVariableValidation = true
 	}
 
-	public discord: Discord = new Discord(this)
+	public discord!: Discord
 
 	public config: Config = {
 		clientID: '',
@@ -36,7 +36,8 @@ class DiscordInstance extends InstanceBase<Config> {
 	 */
 	public async init(config: Config): Promise<void> {
 		this.log('debug', `Process ID: ${process.pid}`)
-		await this.configUpdated(config)
+		this.config = config
+		this.discord = new Discord(this)
 		this.updateInstance()
 		this.setPresetDefinitions(getPresets())
 		this.clientInit()
@@ -96,8 +97,8 @@ class DiscordInstance extends InstanceBase<Config> {
 			this.config.remoteHost !== config.remoteHost ||
 			this.config.remotePort !== config.remotePort
 
-		if (needsReinit) {
-			// Destroy old client and create new one
+		if (needsReinit && this.discord) {
+			// Destroy old client and create new one (only if discord client exists)
 			await this.destroy()
 			this.config = config
 			this.discord = new Discord(this)
