@@ -2,9 +2,25 @@
 
 This module is in a BETA state, there is still work to be done on reconnection logic to prevent duplicate connections or listeners.
 
-Tthe full release version of this module will use a dedicated Companion app associated with Discord and not require every user to create their own individual apps in the Discord Developer Console. This is still waiting on Discord Developer Relations staff to respond to approving of the Companion app.
+The full release version of this module will use a dedicated Companion app associated with Discord and not require every user to create their own individual apps in the Discord Developer Console. This is still waiting on Discord Developer Relations staff to respond to approving of the Companion app.
+
+## Remote Setup
+
+**New in v1.5.0**: This module now supports running Discord on a separate computer from Bitfocus Companion!
+
+If Discord runs on your workstation and Companion runs on a server, you can use the included proxy application to bridge the connection. See [REMOTE_SETUP.md](REMOTE_SETUP.md) for detailed instructions.
+
+Quick overview:
+1. Run the proxy application on your PC where Discord is installed (see [proxy/README.md](proxy/README.md))
+2. Configure the Discord module in Companion with "Use Remote Endpoint" enabled
+3. Point it to your PC's IP address
 
 # Changelog
+**v1.5.0**
+- Added support for remote endpoints - Discord can now run on a different computer than Companion
+- Added proxy application for bridging Discord IPC to remote Companion instances
+- Added comprehensive setup documentation for remote configurations
+
 **v1.4.0**
 - Updated to Node 22, and a new Discord library
 - Added OAuth Refresh Token handling
