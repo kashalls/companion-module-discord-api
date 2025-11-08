@@ -1,0 +1,29 @@
+{
+  "name": "discord-companion-proxy",
+  "version": "1.0.0",
+  "description": "Proxy application to connect Discord on local PC to remote Companion server",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "rimraf dist && tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "discord",
+    "companion",
+    "proxy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@distdev/discord-ipc": "^1.0.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/ws": "^8.5.12",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

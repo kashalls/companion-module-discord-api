@@ -24,6 +24,9 @@ class DiscordInstance extends InstanceBase<Config> {
 		clientSecret: '',
 		refreshToken: '',
 		speakerDelay: 100,
+		useRemoteEndpoint: false,
+		remoteHost: '',
+		remotePort: 8080,
 	}
 
 	public readonly variables = new Variables(this)
@@ -46,6 +49,14 @@ class DiscordInstance extends InstanceBase<Config> {
 		if (!this.config.clientID || !this.config.clientSecret) {
 			this.log('info', 'Please configure the Discord module with a Client ID and Client Secret')
 			return
+		}
+
+		if (this.config.useRemoteEndpoint) {
+			if (!this.config.remoteHost) {
+				this.log('warn', 'Remote endpoint enabled but no remote host configured')
+				return
+			}
+			this.log('info', `Connecting to remote Discord proxy at ${this.config.remoteHost}:${this.config.remotePort}`)
 		}
 
 		this.discord.init()
@@ -78,8 +89,18 @@ class DiscordInstance extends InstanceBase<Config> {
 	 * @description triggered every time the config for this instance is saved
 	 */
 	public async configUpdated(config: Config): Promise<void> {
-		if (this.config.clientID !== config.clientID || this.config.clientSecret !== config.clientSecret) {
+		const needsReinit =
+			this.config.clientID !== config.clientID ||
+			this.config.clientSecret !== config.clientSecret ||
+			this.config.useRemoteEndpoint !== config.useRemoteEndpoint ||
+			this.config.remoteHost !== config.remoteHost ||
+			this.config.remotePort !== config.remotePort
+
+		if (needsReinit) {
+			// Destroy old client and create new one
+			await this.destroy()
 			this.config = config
+			this.discord = new Discord(this)
 			this.clientInit()
 		} else {
 			this.config = config

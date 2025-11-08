@@ -31,19 +31,22 @@
 		]
 	},
 	"eslintIgnore": [
-		"/tests/*.test.ts"
+		"/tests/*.test.ts",
+		"/proxy/**/*"
 	],
 	"license": "MIT",
 	"dependencies": {
 		"@companion-module/base": "~1.11.0",
 		"@distdev/discord-ipc": "^1.0.1",
-		"companion-module-utils": "^0.4.0"
+		"companion-module-utils": "^0.4.0",
+		"ws": "^8.18.0"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^2.1.0",
 		"@types/discord-rpc": "~4.0.3",
 		"@types/jest": "~29.5.14",
 		"@types/node": "22.9.0",
+		"@types/ws": "^8.5.12",
 		"@typescript-eslint/eslint-plugin": "^8.14.0",
 		"@typescript-eslint/parser": "^8.14.0",
 		"eslint": "^9.10.0",

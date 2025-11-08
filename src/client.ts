@@ -1,6 +1,8 @@
 import { Client, type Application, type Channel, type Guild, type VoiceSettings, type VoiceState } from '@distdev/discord-ipc'
 import type DiscordInstance from './index'
 import { type DropdownChoice, InstanceStatus } from '@companion-module/base'
+import { RemoteClientWrapper } from './remote-client-wrapper'
+import type { IDiscordClient } from './client-interface'
 
 export interface ClientData {
 	accessToken: null | string
@@ -84,7 +86,7 @@ interface VoiceSpeaking {
 }
 
 export class Discord {
-	client = new Client()
+	client: IDiscordClient
 	data: ClientData = {
 		accessToken: null,
 		refreshToken: null,
@@ -119,15 +121,33 @@ export class Discord {
 
 	constructor(instance: DiscordInstance) {
 		this.instance = instance
+		// Create appropriate client based on configuration
+		if (instance.config.useRemoteEndpoint) {
+			this.client = new RemoteClientWrapper(instance) as any
+		} else {
+			this.client = new Client() as any
+		}
 	}
 
 	init = async (): Promise<void> => {
 		if (this.initialized) return
 		this.initialized = true
-		this.instance.log('debug', 'Initializing Discord client')
+
+		if (this.instance.config.useRemoteEndpoint) {
+			this.instance.log('debug', 'Initializing remote Discord client')
+		} else {
+			this.instance.log('debug', 'Initializing local Discord client')
+		}
+
 		this.initListeners()
 
-		// New login attempt without OAuth tokens
+		// For remote client, login is handled via proxy
+		if (this.instance.config.useRemoteEndpoint) {
+			await this.client.login({})
+			return
+		}
+
+		// New login attempt without OAuth tokens (local client only)
 		const newLogin = async () => {
 			await this.client
 				.login({
